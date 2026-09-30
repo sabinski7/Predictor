@@ -33,5 +33,6 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare4.py` | 17 teste Monte Carlo (1.000 simulări fiecare): structura zilnică, perechi în aceeași zi, periodicitate (FFT), legătura cu data/ora, poker, colecționarul de cupoane, triplete, compresibilitate | nicio abatere (cel mai mic p = 0,056; corectat = 0,95) |
 | `explorare5.py` | rețea neuronală (MLP), vecini apropiați (kNN), potrivirea celei mai lungi secvențe repetate | niciuna nu bate uniformul pe test (top-7: 34,3% / 35,4% / 35,6%) |
 | `explorare6.py` | 226.700 reguli aritmetice („anteriorul +1”, „acum 10 ture +1”, a·x+c, ±x[t-a] ± x[t-b] + c, aceeași oră de acum d zile) | cea mai bună pe trecut: 5,57% (explicabil prin noroc în 96% din cazuri); cele mai bune 100 în viitor: 5,02% |
+| `explorare7.py` | „numerele rămase în urmă recuperează?” (ultimele 100, ultimele 500, tot istoricul) | nu: cele mai reci 7 ies 35,0–35,5% în următoarele 100 de extrageri; diferențele în bucăți cresc, doar procentele se egalează |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea top-7 rămâne ~35%. Secțiunea **9 · Laborator** din notebook repetă verificarea pe măsură ce crește istoricul.
