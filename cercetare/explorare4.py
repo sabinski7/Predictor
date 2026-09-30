@@ -78,6 +78,7 @@ def clock_stat(a):
     best = 0
     for m in range(2, 41):
         t = np.zeros((m, K)); np.add.at(t, (ts_hours % m, a), 1)
+        t = t[t.sum(1) > 0]                     # resturi imposibile (fără extrageri noaptea)
         best = max(best, chi2_contingency(t)[0] / ((m - 1) * (K - 1)))
     for f in [(doy + hr) % K, (dom * hr) % K, (doy * 24 + hr) % K, (dom + hr) % K]:
         best = max(best, chisquare(np.bincount((a - f) % K, minlength=K))[0] / (K - 1))
