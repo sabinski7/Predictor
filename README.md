@@ -9,6 +9,7 @@ Notebook Deepnote care propune până la 7 numere (1–20) pentru următoarea ex
    - `NUM_PROPUNERI`: câte numere vrei (1–7);
    - `NUMERE_NOI`: extragerile noi, de forma `"2026-04-29 23:00": 5`.
 3. **Run all** (~10 secunde).
+4. După fiecare extragere, completează în ultima celulă (**9 · Introdu ultimul număr extras**) `NUMAR_EXTRAS` și rulează doar celula aceea. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
 
 ## Ce face
 
