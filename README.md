@@ -9,7 +9,7 @@ Notebook Deepnote care propune până la 7 numere (1–20) pentru următoarea ex
    - `NUM_PROPUNERI`: câte numere vrei (1–7);
    - `NUMERE_NOI`: extragerile noi, de forma `"2026-04-29 23:00": 5`.
 3. **Run all** (~10 secunde).
-4. După fiecare extragere, rulează ultima celulă (**9 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
+4. După fiecare extragere, rulează ultima celulă (**10 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
 
 ## Ce face
 
@@ -20,3 +20,15 @@ Notebook Deepnote care propune până la 7 numere (1–20) pentru următoarea ex
 - Salvează propunerile în `predictions_log.csv` și le compară cu rezultatele reale pe măsură ce le adaugi.
 
 > Pe istoricul actual (30.497 extrageri), niciun model nu bate semnificativ șansa pură: top-7 nimerește ~34,7%, față de 35% la întâmplare.
+
+## Cercetare: se poate crește acuratețea?
+
+Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-learn` și `lightgbm` instalate) au căutat sistematic un avantaj:
+
+| Script | Ce testează | Rezultat |
+|---|---|---|
+| `explorare1.py` | dependență la distanța 1–60, diferențe, serii par/impar și mic/mare, derivă pe an, lună și zi, distribuția întârzierilor | nicio abatere (cel mai mic p corectat = 1,0) |
+| `explorare2.py` | regresie logistică și LightGBM cu 264 de trăsături | nu bat uniformul; LightGBM se oprește după o iterație |
+| `explorare3.py` | 30 de strategii „calde/reci/întârziate”, alese pe trecut și verificate pe viitor | toate între 34–36%; corelație trecut ↔ viitor ≈ 0 |
+
+Concluzie: generatorul se comportă aleator, iar acuratețea top-7 rămâne ~35%. Secțiunea **9 · Laborator** din notebook repetă verificarea pe măsură ce crește istoricul.
