@@ -39,5 +39,6 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare6.py` | 226.700 reguli aritmetice („anteriorul +1”, „acum 10 ture +1”, a·x+c, ±x[t-a] ± x[t-b] + c, aceeași oră de acum d zile) | cea mai bună pe trecut: 5,57% (explicabil prin noroc în 96% din cazuri); cele mai bune 100 în viitor: 5,02% |
 | `explorare7.py` | „numerele rămase în urmă recuperează?” (ultimele 100, ultimele 500, tot istoricul) | nu: cele mai reci 7 ies 35,0–35,5% în următoarele 100 de extrageri; diferențele în bucăți cresc, doar procentele se egalează |
 | `explorare8_pauze_consecutive.py` | după o pauză lungă urmează tot o pauză lungă? (ansamblul vs. 120 de serii aleatoare trecute prin același mecanism) | legătură slabă negativă (r ≈ −0,02; p 0,02–0,10) care nu apare pe seturi fixe sau pe serii aleatoare; prea mică pentru a fi folosită, urmărită în secțiunea 9b |
+| `explorare9_reselectie.py` | re-alegerea celei mai bune dintre 48 de strategii după fiecare extragere (pe baza ultimelor 17–2.000 ture) | 44,8–45,4% cu 9 propuneri, față de 45% șansa pură; niciun câștig |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
