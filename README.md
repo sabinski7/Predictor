@@ -21,6 +21,7 @@ Notebook Deepnote care propune până la 9 numere (1–20) pentru următoarea ex
 - Secțiunea **9b** urmărește tiparul „multe ratări → o nimerire → multe ratări” pe tot istoricul și în jurnalul tău.
 - Secțiunea **9c · Detector de schimbare** verifică ultimele 500 și 1.700 de extrageri (uniformitate, repetări, diferențe, oră, modele vs. șansă) și te anunță dacă jocul începe să se comporte altfel.
 - Ponderile ansamblului pun accent pe perioada recentă (`TIMP_INJUMATATIRE`, implicit 1.000 de extrageri), ca să se adapteze repede dacă apare un tipar nou.
+- Secțiunea **9d · Simulator de sisteme** testează ipotetic orice sistem de pariere (când pariezi: mereu / după ratări / după nimeriri / la anumite ore; cum pariezi: fix / martingale / invers / procent / Kelly) pe istoricul real și pe serii aleatoare, cu bancă, obiectiv și limită de pierdere. Parametrul `sansa_ipotetica` arată cum ar merge un sistem dacă ar exista un avantaj.
 - Salvează propunerile în `predictions_log.csv` și le compară cu rezultatele reale pe măsură ce le adaugi.
 
 > Pe istoricul actual (30.497 extrageri), niciun model nu bate semnificativ șansa pură: top-7 nimerește ~34,7%, față de 35% la întâmplare.
