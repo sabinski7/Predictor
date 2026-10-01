@@ -9,7 +9,7 @@ Notebook Deepnote care propune până la 9 numere (1–20) pentru următoarea ex
    - `NUM_PROPUNERI`: câte numere vrei (1–9; implicit 9);
    - `NUMERE_NOI`: extragerile noi, de forma `"2026-04-29 23:00": 5`.
 3. **Run all** (~10 secunde).
-4. După fiecare extragere, rulează ultima celulă (**9 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
+4. După fiecare extragere, rulează ultima celulă (**10 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
 
 ## Ce face
 
@@ -17,6 +17,7 @@ Notebook Deepnote care propune până la 9 numere (1–20) pentru următoarea ex
 - Rulează teste de aleatorism: uniformitate, serial, oră din zi, zi a săptămânii.
 - Șapte modele (uniform, frecvență globală și recentă, Markov-1/2, oră din zi, întârziere), evaluate walk-forward și combinate într-un ansamblu. Ponderile sunt calibrate pe date pe care ansamblul nu le testează.
 - Afișează propunerile împreună cu rata reală de nimerire din backtest și cu șansa pură (K × 5%).
+- Secțiunea **9 · Câte ture sunt între nimeriri?** arată distribuția pauzelor dintre nimeriri (backtest vs. teorie), șansa de nimerire după k ratări la rând și pauzele tale reale din jurnal.
 - Salvează propunerile în `predictions_log.csv` și le compară cu rezultatele reale pe măsură ce le adaugi.
 
 > Pe istoricul actual (30.497 extrageri), niciun model nu bate semnificativ șansa pură: top-7 nimerește ~34,7%, față de 35% la întâmplare.
