@@ -18,6 +18,7 @@ Notebook Deepnote care propune până la 9 numere (1–20) pentru următoarea ex
 - Șapte modele (uniform, frecvență globală și recentă, Markov-1/2, oră din zi, întârziere), evaluate walk-forward și combinate într-un ansamblu. Ponderile sunt calibrate pe date pe care ansamblul nu le testează.
 - Afișează propunerile împreună cu rata reală de nimerire din backtest și cu șansa pură (K × 5%).
 - Secțiunea **9 · Câte ture sunt între nimeriri?** arată distribuția pauzelor dintre nimeriri (backtest vs. teorie), șansa de nimerire după k ratări la rând și pauzele tale reale din jurnal.
+- Secțiunea **9b** urmărește tiparul „multe ratări → o nimerire → multe ratări” pe tot istoricul și în jurnalul tău.
 - Salvează propunerile în `predictions_log.csv` și le compară cu rezultatele reale pe măsură ce le adaugi.
 
 > Pe istoricul actual (30.497 extrageri), niciun model nu bate semnificativ șansa pură: top-7 nimerește ~34,7%, față de 35% la întâmplare.
@@ -35,5 +36,6 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare5.py` | rețea neuronală (MLP), vecini apropiați (kNN), potrivirea celei mai lungi secvențe repetate | niciuna nu bate uniformul pe test (top-7: 34,3% / 35,4% / 35,6%) |
 | `explorare6.py` | 226.700 reguli aritmetice („anteriorul +1”, „acum 10 ture +1”, a·x+c, ±x[t-a] ± x[t-b] + c, aceeași oră de acum d zile) | cea mai bună pe trecut: 5,57% (explicabil prin noroc în 96% din cazuri); cele mai bune 100 în viitor: 5,02% |
 | `explorare7.py` | „numerele rămase în urmă recuperează?” (ultimele 100, ultimele 500, tot istoricul) | nu: cele mai reci 7 ies 35,0–35,5% în următoarele 100 de extrageri; diferențele în bucăți cresc, doar procentele se egalează |
+| `explorare8_pauze_consecutive.py` | după o pauză lungă urmează tot o pauză lungă? (ansamblul vs. 120 de serii aleatoare trecute prin același mecanism) | legătură slabă negativă (r ≈ −0,02; p 0,02–0,10) care nu apare pe seturi fixe sau pe serii aleatoare; prea mică pentru a fi folosită, urmărită în secțiunea 9b |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
