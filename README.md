@@ -1,15 +1,15 @@
 # Predictor
 
-Notebook Deepnote care propune până la 7 numere (1–20) pentru următoarea extragere orară (07:00–23:00).
+Notebook Deepnote care propune până la 9 numere (1–20) pentru următoarea extragere orară (07:00–23:00).
 
 ## Utilizare în Deepnote
 
 1. Importă `Predictor.ipynb` și urcă `history.csv` în același director.
 2. În celula **1 · Configurare**:
-   - `NUM_PROPUNERI`: câte numere vrei (1–7);
+   - `NUM_PROPUNERI`: câte numere vrei (1–9; implicit 9);
    - `NUMERE_NOI`: extragerile noi, de forma `"2026-04-29 23:00": 5`.
 3. **Run all** (~10 secunde).
-4. După fiecare extragere, rulează ultima celulă (**10 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
+4. După fiecare extragere, rulează ultima celulă (**9 · Introdu ultimul număr extras**). În output apare o căsuță: scrii numărul (1–20) și apeși Enter. Numărul se salvează în istoric și primești imediat propunerile pentru extragerea următoare.
 
 ## Ce face
 
@@ -35,4 +35,4 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare6.py` | 226.700 reguli aritmetice („anteriorul +1”, „acum 10 ture +1”, a·x+c, ±x[t-a] ± x[t-b] + c, aceeași oră de acum d zile) | cea mai bună pe trecut: 5,57% (explicabil prin noroc în 96% din cazuri); cele mai bune 100 în viitor: 5,02% |
 | `explorare7.py` | „numerele rămase în urmă recuperează?” (ultimele 100, ultimele 500, tot istoricul) | nu: cele mai reci 7 ies 35,0–35,5% în următoarele 100 de extrageri; diferențele în bucăți cresc, doar procentele se egalează |
 
-Concluzie: generatorul se comportă aleator, iar acuratețea top-7 rămâne ~35%. Secțiunea **9 · Laborator** din notebook repetă verificarea pe măsură ce crește istoricul.
+Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
