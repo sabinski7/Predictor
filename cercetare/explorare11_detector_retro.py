@@ -1,5 +1,5 @@
 """Faza 11: detectorul de schimbare (secțiunea 9c) rulat retroactiv, săptămânal, pe tot istoricul.
-Rulare: python3 explorare11_detector_retro.py <director cu Predictor.ipynb și history.csv>"""
+Rulare: python3 explorare11_detector_retro.py <director cu Predictor.ipynb și history.csv> [pas: 119=săptămânal, 17=zilnic] [nr. simulări]"""
 import json, os, sys, contextlib, io
 import numpy as np, pandas as pd, matplotlib
 matplotlib.use('Agg')
@@ -38,7 +38,9 @@ def checks(t_end):
                     binomtest(int(ens_hit[s].sum()), W, KK / K, alternative="greater").pvalue))
     return out
 
-weeks = np.arange(2000 + 1700, N + 1, 119)          # o verificare pe săptămână (119 ture)
+STEP = int(sys.argv[2]) if len(sys.argv) > 2 else 119   # 119 = o verificare pe săptămână, 17 = zilnic
+SIMS = int(sys.argv[3]) if len(sys.argv) > 3 else 30
+weeks = np.arange(2000 + 1700, N + 1, STEP)
 rows = []
 for t in weeks:
     c = checks(t); m = len(c)
@@ -47,9 +49,10 @@ for t in weeks:
     rows.append({"data": df["dt"].iloc[t - 1], "p_corectat": worst[2], "fereastra": worst[0], "verificare": worst[1]})
 R = pd.DataFrame(rows)
 R["stare"] = np.where(R.p_corectat < 0.01, "🚨", np.where(R.p_corectat < 0.05, "🟡", "✅"))
-print(f"{len(R)} verificări săptămânale, {R.data.iloc[0]:%Y-%m-%d} → {R.data.iloc[-1]:%Y-%m-%d}")
+print(f"{len(R)} verificări (la fiecare {STEP} ture), {R.data.iloc[0]:%Y-%m-%d} → {R.data.iloc[-1]:%Y-%m-%d}")
 print(R.stare.value_counts().to_string())
 print("\nToate alarmele (🟡 și 🚨):")
+R.to_csv('/tmp/claude-0/-home-user-Predictor/9da01c27-98cd-5380-9d0a-6e35dab68510/scratchpad/detector_zilnic.csv', index=False)
 for _, r in R[R.stare != "✅"].iterrows():
     print(f"  {r.stare} {r.data:%Y-%m-%d}  p corectat = {r.p_corectat:.4f}  ({r.verificare}, ultimele {r.fereastra})")
 
@@ -57,7 +60,7 @@ for _, r in R[R.stare != "✅"].iterrows():
 rng = np.random.default_rng(0)
 fa_y, fa_r = [], []
 x_real = x.copy()
-for sim in range(30):
+for sim in range(SIMS):
     x = rng.integers(0, K, N)
     order_s = np.argsort(-P_ens[:N], axis=1, kind='stable')     # propuneri fixe (independente de seria simulată)
     ens_hit = np.argmax(order_s == x[:, None], axis=1) < KK
@@ -68,7 +71,7 @@ for sim in range(30):
         st.append(min(min(1.0, p * m) for _, _, p in c))
     st = np.array(st)
     fa_y.append((st < 0.05).mean()); fa_r.append((st < 0.01).mean())
-print(f"\nPe 30 de istorii simulate perfect aleatoare: 🟡 sau 🚨 în {100*np.mean(fa_y):.1f}% din săptămâni, "
-      f"🚨 în {100*np.mean(fa_r):.1f}% din săptămâni")
-print(f"Pe istoricul tău real:                      🟡 sau 🚨 în {100*(R.stare != '✅').mean():.1f}% din săptămâni, "
-      f"🚨 în {100*(R.stare == '🚨').mean():.1f}% din săptămâni")
+print(f"\nPe {SIMS} istorii simulate perfect aleatoare: 🟡 sau 🚨 în {100*np.mean(fa_y):.1f}% din verificări, "
+      f"🚨 în {100*np.mean(fa_r):.1f}% din verificări")
+print(f"Pe istoricul tău real:                      🟡 sau 🚨 în {100*(R.stare != '✅').mean():.1f}% din verificări, "
+      f"🚨 în {100*(R.stare == '🚨').mean():.1f}% din verificări")
