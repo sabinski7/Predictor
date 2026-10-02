@@ -42,5 +42,6 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare8_pauze_consecutive.py` | după o pauză lungă urmează tot o pauză lungă? (ansamblul vs. 120 de serii aleatoare trecute prin același mecanism) | legătură slabă negativă (r ≈ −0,02; p 0,02–0,10) care nu apare pe seturi fixe sau pe serii aleatoare; prea mică pentru a fi folosită, urmărită în secțiunea 9b |
 | `explorare9_reselectie.py` | re-alegerea celei mai bune dintre 48 de strategii după fiecare extragere (pe baza ultimelor 17–2.000 ture) | 44,8–45,4% cu 9 propuneri, față de 45% șansa pură; niciun câștig |
 | `explorare10_combinatii.py` | 26 de modele (inclusiv variante „reci” și ferestre), toate submulțimile celor 6 modele din notebook × 4 metode de combinare, toate perechile; 2.316 strategii evaluate după profit cu cotele reale | nicio strategie nu e pe profit în test; cea mai bună pe trecut pierde 6–8% în test |
+| `explorare11_detector_retro.py` | detectorul de schimbare (9c) rulat retroactiv în fiecare săptămână, 2022–2026, comparat cu 30 de istorii simulate | 246 ✅, 2 🟡 (ian.–feb. 2026, repetări), 0 🚨; mai puține alarme decât pe serii perfect aleatoare |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
