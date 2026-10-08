@@ -159,6 +159,7 @@ def main():
             print(f"⚠️  Nu am putut citi site-ul ({e}); încerc din nou la următoarea verificare.")
             draws = []
 
+    gh_note("notice", f"Sursa: {len(draws)} rezultate citite" + (f", ultimul {max(draws)[0]} → {max(draws)[1]}" if draws else ""))
     added = add_draws(draws)
     if not added and not args.test:
         print("Nicio extragere nouă: nu rulez nimic.")
@@ -167,5 +168,16 @@ def main():
     send_telegram(build_message(added))
 
 
+def gh_note(level, msg):
+    """Pe GitHub Actions, mesajul apare ca adnotare pe rulare (vizibilă și fără jurnalul complet)."""
+    if os.environ.get("GITHUB_ACTIONS"):
+        print(f"::{level}::" + msg.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A"))
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        gh_note("error", f"{type(e).__name__}: {e}\n" + "".join(traceback.format_exc().splitlines(True)[-12:]))
+        raise
