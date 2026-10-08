@@ -2,7 +2,7 @@ name: Predictor automat
 
 on:
   schedule:
-    - cron: "*/10 * * * *"       # la fiecare 10 minute; rezultatele apar pe site la ore variabile ok
+    - cron: "*/5 * * * *"       # la fiecare 10 minute; rezultatele apar pe site la ore variabile ok
   workflow_dispatch:
     inputs:
       numar:
