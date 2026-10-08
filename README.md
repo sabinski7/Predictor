@@ -45,3 +45,35 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare11_detector_retro.py` | detectorul de schimbare (9c) rulat retroactiv săptămânal (248 verificări) și zilnic (1.732), comparat cu istorii simulate | zilnic: 22 🟡, 0 🚨 (1,3% din zile, față de 3,4% pe serii aleatoare); după cele două perioade în care ansamblul „bătea șansa” (mai 2024, apr. 2026) rata a revenit imediat la ~45% |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
+
+## Automatizare: GitHub Actions + Telegram
+
+Workflow-ul `.github/workflows/predictor.yml` rulează în fiecare oră, la minutul 7:
+
+1. citește extragerile noi din sursă (`automat/sursa.py`);
+2. le adaugă în `history.csv`, fără duplicate;
+3. rulează `Predictor.ipynb`, care salvează propunerile în `predictions_log.csv`;
+4. îți trimite pe Telegram propunerile pentru extragerea următoare și rezultatul ultimei extrageri;
+5. salvează `history.csv` și `predictions_log.csv` în repo.
+
+Dacă nu a apărut o extragere nouă, nu face nimic și nu trimite niciun mesaj.
+
+### Configurare Telegram (o singură dată, ~5 minute)
+
+1. În Telegram, deschide **@BotFather**, trimite `/newbot` și urmează pașii. La final primești un **token**, de forma `123456789:AA...`.
+2. Deschide botul nou creat și apasă **Start**. Fără pasul ăsta, botul nu îți poate scrie.
+3. Deschide **@userinfobot** și apasă **Start**. Îți răspunde cu **Id**-ul tău, un număr.
+4. Pe GitHub, în repo: **Settings → Secrets and variables → Actions → New repository secret**, adaugă:
+   - `TELEGRAM_TOKEN` = tokenul de la pasul 1
+   - `TELEGRAM_CHAT_ID` = Id-ul de la pasul 3
+5. Test: **Actions → Predictor automat → Run workflow**, bifează „Trimite propunerile acum” și apasă **Run workflow**. În ~1 minut primești mesajul.
+
+### Introducere manuală, de pe telefon
+
+Dacă sursa nu merge, poți introduce numărul din aplicația GitHub sau din browser: **Actions → Predictor automat → Run workflow**, scrii numărul în câmpul „Numărul extras” și pornești rularea.
+
+### Observații
+
+- GitHub poate întârzia rulările programate cu câteva minute, uneori mai mult în orele aglomerate.
+- Repo-ul e public: istoricul și jurnalul se văd public. Tokenul Telegram rămâne secret.
+- `history.csv` și `predictions_log.csv` din repo devin sursa principală. Pentru Deepnote, descarcă-le de aici.

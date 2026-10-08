@@ -1,0 +1,165 @@
+"""Actualizare automată a predictorului.
+
+1. Citește extragerile noi din sursă (automat/sursa.py) sau primește un număr cu --numar.
+2. Le scrie în history.csv (fără duplicate).
+3. Rulează Predictor.ipynb, care salvează propunerile pentru extragerea următoare în predictions_log.csv.
+4. Trimite pe Telegram propunerile și rezultatul ultimei extrageri.
+
+Rulare:
+    python automat/actualizeaza.py               # citește sursa
+    python automat/actualizeaza.py --numar 7     # adaugă 7 pentru următoarea extragere
+    python automat/actualizeaza.py --test        # trimite propunerile actuale, fără extragere nouă
+"""
+import argparse
+import os
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+import nbformat
+import pandas as pd
+from nbclient import NotebookClient
+
+ROOT = Path(__file__).resolve().parent.parent
+HISTORY = ROOT / "history.csv"
+LOG = ROOT / "predictions_log.csv"
+NOTEBOOK = ROOT / "Predictor.ipynb"
+PRIMA_ORA, ULTIMA_ORA = 7, 23
+K = 20
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sursa import extrage_rezultate  # noqa: E402
+
+
+def load_history():
+    df = pd.read_csv(HISTORY, dtype={"Date": str, "Time": str})
+    df["dt"] = pd.to_datetime(df["Date"] + " " + df["Time"], format="%Y-%m-%d %H:%M")
+    return df
+
+
+def next_slot(dt):
+    n = dt + pd.Timedelta(hours=1)
+    if n.hour > ULTIMA_ORA:
+        n = n.normalize() + pd.Timedelta(days=1, hours=PRIMA_ORA)
+    elif n.hour < PRIMA_ORA:
+        n = n.normalize() + pd.Timedelta(hours=PRIMA_ORA)
+    return n
+
+
+def add_draws(draws):
+    """Adaugă extragerile care lipsesc. Întoarce lista celor adăugate."""
+    df = load_history()
+    existing = dict(zip(df["dt"], df["Drawn Number"]))
+    added = []
+    for slot, num in sorted(draws):
+        dt, num = pd.Timestamp(slot), int(num)
+        if not 1 <= num <= K or not (PRIMA_ORA <= dt.hour <= ULTIMA_ORA and dt.minute == 0):
+            print(f"⚠️  ignor {slot} → {num} (număr sau oră invalidă)")
+            continue
+        if dt in existing:
+            if existing[dt] != num:
+                print(f"⚠️  {slot} are deja {existing[dt]} în istoric (sursa spune {num}); nu suprascriu")
+            continue
+        existing[dt] = num
+        added.append((dt, num))
+    if added:
+        new = pd.DataFrame({"Date": [d.strftime("%Y-%m-%d") for d, _ in added],
+                            "Time": [d.strftime("%H:%M") for d, _ in added],
+                            "Drawn Number": [n for _, n in added]})
+        out = pd.concat([df[["Date", "Time", "Drawn Number"]], new], ignore_index=True)
+        out["dt"] = pd.to_datetime(out["Date"] + " " + out["Time"])
+        out.sort_values("dt").drop(columns="dt").to_csv(HISTORY, index=False)
+        for d, n in added:
+            print(f"✅ adăugat {d:%Y-%m-%d %H:%M} → {n}")
+    return added
+
+
+def run_notebook():
+    nb = nbformat.read(NOTEBOOK, as_version=4)
+    NotebookClient(nb, timeout=900, kernel_name="python3",
+                   resources={"metadata": {"path": str(ROOT)}}).execute()
+    print("📓 notebook rulat")
+
+
+def build_message():
+    df = load_history()
+    real = dict(zip(df["dt"].dt.strftime("%Y-%m-%d %H:%M"), df["Drawn Number"]))
+    log = pd.read_csv(LOG, dtype=str)
+    nxt = f"{next_slot(df['dt'].iloc[-1]):%Y-%m-%d %H:%M}"
+    row = log[log["slot"] == nxt]
+    lines = []
+    if len(row):
+        props = row["propuneri"].iloc[0].split()
+        lines.append(f"🎯 Propuneri pentru {pd.Timestamp(nxt):%d.%m %H:%M}")
+        lines.append("   " + " · ".join(props))
+    else:
+        lines.append(f"⚠️ Nu găsesc propuneri pentru {nxt} în jurnal.")
+
+    last_slot = f"{df['dt'].iloc[-1]:%Y-%m-%d %H:%M}"
+    last_num = int(df["Drawn Number"].iloc[-1])
+    prev = log[log["slot"] == last_slot]
+    if len(prev):
+        hit = last_num in map(int, prev["propuneri"].iloc[0].split())
+        lines.append(f"\nUltima extragere {pd.Timestamp(last_slot):%H:%M} → {last_num}  "
+                     + ("✅ NIMERIT" if hit else "❌ ratat"))
+    else:
+        lines.append(f"\nUltima extragere {pd.Timestamp(last_slot):%H:%M} → {last_num}")
+
+    log["rez"] = log["slot"].map(real)
+    done = log.dropna(subset=["rez"]).sort_values("slot")
+    if len(done):
+        hits = [int(r) in map(int, p.split()) for r, p in zip(done["rez"], done["propuneri"])]
+        streak = 0
+        for h in reversed(hits):
+            if h:
+                break
+            streak += 1
+        k = int(done["k"].iloc[-1])
+        q = 1 - k / K
+        level = "🟢" if q ** streak > 0.10 else ("🟡" if q ** streak > 0.02 else "🔴")
+        if streak:
+            lines.append(f"Serie: {streak} {'tură ratată' if streak == 1 else 'ture ratate'} la rând {level}")
+        exp = sum(int(v) / K for v in done["k"])
+        lines.append(f"Jurnal: {sum(hits)}/{len(hits)} nimerite ({100 * sum(hits) / len(hits):.1f}%), "
+                     f"șansa pură ≈ {100 * exp / len(hits):.0f}%")
+    return "\n".join(lines)
+
+
+def send_telegram(text):
+    token, chat = os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    print("\n" + text + "\n")
+    if not token or not chat:
+        print("(TELEGRAM_TOKEN / TELEGRAM_CHAT_ID lipsesc: mesajul nu a fost trimis)")
+        return
+    data = urllib.parse.urlencode({"chat_id": chat, "text": text}).encode()
+    with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data, timeout=30) as r:
+        print("📨 trimis pe Telegram" if r.status == 200 else f"⚠️ Telegram a răspuns {r.status}")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--numar", type=int, help="numărul extras la următoarea extragere (1–20)")
+    ap.add_argument("--test", action="store_true", help="rulează și trimite mesajul chiar fără extragere nouă")
+    args = ap.parse_args()
+
+    if args.numar is not None:
+        slot = next_slot(load_history()["dt"].iloc[-1])
+        draws = [(f"{slot:%Y-%m-%d %H:%M}", args.numar)]
+    else:
+        try:
+            draws = extrage_rezultate()
+        except NotImplementedError as e:
+            print(f"ℹ️  {e}")
+            draws = []
+
+    added = add_draws(draws)
+    if not added and not args.test:
+        print("Nicio extragere nouă: nu rulez nimic.")
+        return
+    run_notebook()
+    send_telegram(build_message())
+
+
+if __name__ == "__main__":
+    main()

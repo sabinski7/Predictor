@@ -1,0 +1,63 @@
+name: Predictor automat
+
+on:
+  schedule:
+    - cron: "7 * * * *"          # în fiecare oră, la minutul 7 (GitHub poate întârzia câteva minute)
+  workflow_dispatch:
+    inputs:
+      numar:
+        description: "Numărul extras (1–20) pentru următoarea extragere. Gol = citește sursa."
+        required: false
+      test:
+        description: "Trimite propunerile acum, chiar fără extragere nouă"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: predictor
+  cancel-in-progress: false
+
+env:
+  TZ: Europe/Bucharest
+
+jobs:
+  actualizeaza:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalează dependențele
+        run: pip install -r requirements.txt -r automat/requirements.txt
+
+      - name: Actualizează istoricul, rulează notebook-ul, trimite pe Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          NUMAR: ${{ github.event.inputs.numar }}
+          TEST: ${{ github.event.inputs.test }}
+        run: |
+          ARGS=""
+          if [ -n "$NUMAR" ]; then ARGS="--numar $NUMAR"; fi
+          if [ "$TEST" = "true" ]; then ARGS="$ARGS --test"; fi
+          python automat/actualizeaza.py $ARGS
+
+      - name: Salvează istoricul și jurnalul în repo
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "predictor-bot@users.noreply.github.com"
+          git add history.csv predictions_log.csv
+          if git diff --cached --quiet; then
+            echo "Nimic de salvat."
+          else
+            git commit -m "Actualizare automată $(TZ=Europe/Bucharest date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
