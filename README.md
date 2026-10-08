@@ -50,7 +50,7 @@ Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul
 
 Workflow-ul `.github/workflows/predictor.yml` rulează la fiecare 10 minute, pentru că rezultatele apar pe site la ore variabile (de obicei la :15–:20, uneori abia la ora următoare):
 
-1. citește extragerile noi din sursă (`automat/sursa.py`); dacă apar deodată mai multe, de exemplu 12:00 întârziată împreună cu 13:00, le adaugă pe toate, în ordine;
+1. citește Numerone din arhiva Win for Life Classico (`automat/sursa.py`, pagina https://www.winforlife.it/archivio-estrazioni-classico, ultimele ~30 de concursuri, ora Italiei); dacă apar deodată mai multe, de exemplu 12:00 întârziată împreună cu 13:00, le adaugă pe toate, în ordine;
 2. le adaugă în `history.csv`, fără duplicate;
 3. rulează `Predictor.ipynb`, care salvează propunerile în `predictions_log.csv`;
 4. îți trimite pe Telegram propunerile pentru extragerea următoare și rezultatul ultimei extrageri;

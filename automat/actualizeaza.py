@@ -155,6 +155,9 @@ def main():
         except NotImplementedError as e:
             print(f"ℹ️  {e}")
             draws = []
+        except OSError as e:          # site indisponibil / rețea: încercăm din nou la următoarea rulare
+            print(f"⚠️  Nu am putut citi site-ul ({e}); încerc din nou la următoarea verificare.")
+            draws = []
 
     added = add_draws(draws)
     if not added and not args.test:
