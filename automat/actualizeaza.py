@@ -157,7 +157,30 @@ def send_telegram(text):
             400: "chat id-ul nu e bun: verifică numărul de la @userinfobot și apasă Start la botul tău.",
         }.get(e.code, "")
         raise RuntimeError(f"Telegram a refuzat mesajul (HTTP {e.code}: {desc}). {hint} "
-                           f"[chat id folosit: {chat[:3]}…{chat[-2:]}, {len(chat)} cifre]") from None
+                           f"[chat id folosit: {chat[:3]}…{chat[-2:]}, {len(chat)} cifre] "
+                           + telegram_diagnostic(token, chat)) from None
+
+
+def telegram_diagnostic(token, chat):
+    """Ce știe botul: numele lui și de la cine a primit mesaje recent (fără să afișeze Id-uri complete)."""
+    def call(method):
+        with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/{method}", timeout=30) as r:
+            return json.loads(r.read().decode())["result"]
+    try:
+        me = call("getMe")
+        upd = call("getUpdates")
+    except Exception as e:
+        return f"(diagnostic indisponibil: {e})"
+    senders = {str(u[k]["chat"]["id"]) for u in upd for k in ("message", "my_chat_member") if k in u}
+    bot = f"@{me.get('username')}"
+    if not senders:
+        return (f"Diagnostic: tokenul aparține botului {bot}, care NU a primit niciun mesaj recent. "
+                f"Deschide {bot} în Telegram, apasă Start și trimite-i orice mesaj, apoi rulează din nou.")
+    if chat in senders:
+        return f"Diagnostic: {bot} a primit mesaje de la acest Id; încearcă din nou peste un minut."
+    masked = ", ".join(f"{c[:3]}…{c[-2:]} ({len(c)} cifre)" for c in sorted(senders))
+    return (f"Diagnostic: {bot} a primit mesaje de la alt Id: {masked}. "
+            f"Verifică secretul TELEGRAM_CHAT_ID (să fie Id-ul contului cu care scrii botului).")
 
 
 def main():
