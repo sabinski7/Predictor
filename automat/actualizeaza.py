@@ -214,7 +214,7 @@ def main():
         send_telegram(nums)
 
 
-SEPARATOR = "\t"   # tab: lipit în Excel, fiecare număr ajunge în celula lui
+SEPARATOR = "\t·\t"   # tab + punct vizibil: în Excel numerele ajung în celule separate, punctele în celulele dintre ele
 
 
 def numbers_only():
