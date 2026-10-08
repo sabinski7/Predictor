@@ -105,7 +105,7 @@ def build_message(added=()):
     lines.append("")
     for dt, num in added[-5:]:
         prev = log[log["slot"] == f"{dt:%Y-%m-%d %H:%M}"]
-        verdict = "  (fără propuneri: rezultatul anterior a întârziat)"
+        verdict = ""
         if len(prev):
             verdict = "  ✅ NIMERIT" if num in map(int, prev["propuneri"].iloc[0].split()) else "  ❌ ratat"
         lines.append(f"Extragerea {dt:%d.%m %H:%M} → {num}{verdict}")
@@ -203,11 +203,27 @@ def main():
             draws = []
 
     gh_note("notice", f"Sursa: {len(draws)} rezultate citite" + (f", ultimul {max(draws)[0]} → {max(draws)[1]}" if draws else ""))
-    added = add_draws(draws)
-    if not added and not args.test:
-        print("Nicio extragere nouă: nu rulez nimic.")
-        return
-    run_notebook()
+    # Turele noi se procesează pe rând, în ordine cronologică: pentru fiecare se adaugă rezultatul,
+    # se rulează notebook-ul (propunerile pentru tura următoare) și se trimit mesajele.
+    # Așa, dacă 12:00 și 13:00 apar deodată pe site, vin întâi 12:00 + propunerile pentru 13:00,
+    # apoi 13:00 (verificat față de acele propuneri) + propunerile pentru 14:00.
+    any_added = False
+    for slot, num in sorted(draws, key=lambda d: pd.Timestamp(d[0])):
+        added = add_draws([(slot, num)])
+        if not added:
+            continue
+        any_added = True
+        run_notebook()
+        send_both(added)
+    if not any_added:
+        if not args.test:
+            print("Nicio extragere nouă: nu rulez nimic.")
+            return
+        run_notebook()
+        send_both([])
+
+
+def send_both(added):
     send_telegram(build_message(added))
     nums = numbers_only()
     if nums:
