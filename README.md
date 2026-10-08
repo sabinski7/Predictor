@@ -48,9 +48,9 @@ Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul
 
 ## Automatizare: GitHub Actions + Telegram
 
-Workflow-ul `.github/workflows/predictor.yml` rulează în fiecare oră, la minutul 7:
+Workflow-ul `.github/workflows/predictor.yml` rulează la fiecare 10 minute, pentru că rezultatele apar pe site la ore variabile (de obicei la :15–:20, uneori abia la ora următoare):
 
-1. citește extragerile noi din sursă (`automat/sursa.py`);
+1. citește extragerile noi din sursă (`automat/sursa.py`); dacă apar deodată mai multe, de exemplu 12:00 întârziată împreună cu 13:00, le adaugă pe toate, în ordine;
 2. le adaugă în `history.csv`, fără duplicate;
 3. rulează `Predictor.ipynb`, care salvează propunerile în `predictions_log.csv`;
 4. îți trimite pe Telegram propunerile pentru extragerea următoare și rezultatul ultimei extrageri;

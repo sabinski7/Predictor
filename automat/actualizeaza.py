@@ -52,7 +52,7 @@ def add_draws(draws):
     df = load_history()
     existing = dict(zip(df["dt"], df["Drawn Number"]))
     added = []
-    for slot, num in sorted(draws):
+    for slot, num in sorted(draws, key=lambda d: pd.Timestamp(d[0])):
         dt, num = pd.Timestamp(slot), int(num)
         if not 1 <= num <= K or not (PRIMA_ORA <= dt.hour <= ULTIMA_ORA and dt.minute == 0):
             print(f"⚠️  ignor {slot} → {num} (număr sau oră invalidă)")
@@ -82,12 +82,13 @@ def run_notebook():
     print("📓 notebook rulat")
 
 
-def build_message():
+def build_message(added=()):
     df = load_history()
     real = dict(zip(df["dt"].dt.strftime("%Y-%m-%d %H:%M"), df["Drawn Number"]))
     log = pd.read_csv(LOG, dtype=str)
     nxt = f"{next_slot(df['dt'].iloc[-1]):%Y-%m-%d %H:%M}"
     row = log[log["slot"] == nxt]
+    added = sorted(added)
     lines = []
     if len(row):
         props = row["propuneri"].iloc[0].split()
@@ -96,15 +97,17 @@ def build_message():
     else:
         lines.append(f"⚠️ Nu găsesc propuneri pentru {nxt} în jurnal.")
 
-    last_slot = f"{df['dt'].iloc[-1]:%Y-%m-%d %H:%M}"
-    last_num = int(df["Drawn Number"].iloc[-1])
-    prev = log[log["slot"] == last_slot]
-    if len(prev):
-        hit = last_num in map(int, prev["propuneri"].iloc[0].split())
-        lines.append(f"\nUltima extragere {pd.Timestamp(last_slot):%H:%M} → {last_num}  "
-                     + ("✅ NIMERIT" if hit else "❌ ratat"))
-    else:
-        lines.append(f"\nUltima extragere {pd.Timestamp(last_slot):%H:%M} → {last_num}")
+    if not added:
+        added = [(df["dt"].iloc[-1], int(df["Drawn Number"].iloc[-1]))]
+    lines.append("")
+    for dt, num in added[-5:]:
+        prev = log[log["slot"] == f"{dt:%Y-%m-%d %H:%M}"]
+        verdict = "  (fără propuneri: rezultatul anterior a întârziat)"
+        if len(prev):
+            verdict = "  ✅ NIMERIT" if num in map(int, prev["propuneri"].iloc[0].split()) else "  ❌ ratat"
+        lines.append(f"Extragerea {dt:%d.%m %H:%M} → {num}{verdict}")
+    if len(added) > 5:
+        lines.append(f"(+ încă {len(added) - 5} extrageri mai vechi adăugate)")
 
     log["rez"] = log["slot"].map(real)
     done = log.dropna(subset=["rez"]).sort_values("slot")
@@ -158,7 +161,7 @@ def main():
         print("Nicio extragere nouă: nu rulez nimic.")
         return
     run_notebook()
-    send_telegram(build_message())
+    send_telegram(build_message(added))
 
 
 if __name__ == "__main__":

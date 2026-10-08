@@ -2,7 +2,7 @@ name: Predictor automat
 
 on:
   schedule:
-    - cron: "7 * * * *"          # în fiecare oră, la minutul 7 (GitHub poate întârzia câteva minute)
+    - cron: "*/10 * * * *"       # la fiecare 10 minute; rezultatele apar pe site la ore variabile
   workflow_dispatch:
     inputs:
       numar:
