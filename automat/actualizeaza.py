@@ -11,8 +11,11 @@ Rulare:
     python automat/actualizeaza.py --test        # trimite propunerile actuale, fără extragere nouă
 """
 import argparse
+import json
 import os
+import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -130,14 +133,31 @@ def build_message(added=()):
 
 
 def send_telegram(text):
-    token, chat = os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    token = (os.environ.get("TELEGRAM_TOKEN") or "").strip()
+    chat_raw = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    chat = "".join(re.findall(r"-?\d+", chat_raw)[:1])          # păstrează doar numărul (ex. „Id: 123” → 123)
     print("\n" + text + "\n")
     if not token or not chat:
-        print("(TELEGRAM_TOKEN / TELEGRAM_CHAT_ID lipsesc: mesajul nu a fost trimis)")
+        gh_note("warning", "TELEGRAM_TOKEN sau TELEGRAM_CHAT_ID lipsesc din secretele repo-ului: mesajul nu a fost trimis.")
         return
     data = urllib.parse.urlencode({"chat_id": chat, "text": text}).encode()
-    with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data, timeout=30) as r:
-        print("📨 trimis pe Telegram" if r.status == 200 else f"⚠️ Telegram a răspuns {r.status}")
+    try:
+        with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data, timeout=30) as r:
+            print("📨 trimis pe Telegram")
+            gh_note("notice", "Mesaj trimis pe Telegram.")
+    except urllib.error.HTTPError as e:
+        try:
+            desc = json.loads(e.read().decode()).get("description", "")
+        except Exception:
+            desc = ""
+        hint = {
+            401: "tokenul e greșit: copiază-l din nou de la @BotFather.",
+            404: "tokenul e greșit sau incomplet: copiază-l din nou de la @BotFather.",
+            403: "botul nu are voie să-ți scrie: deschide botul tău în Telegram și apasă Start.",
+            400: "chat id-ul nu e bun: verifică numărul de la @userinfobot și apasă Start la botul tău.",
+        }.get(e.code, "")
+        raise RuntimeError(f"Telegram a refuzat mesajul (HTTP {e.code}: {desc}). {hint} "
+                           f"[chat id folosit: {chat[:3]}…{chat[-2:]}, {len(chat)} cifre]") from None
 
 
 def main():
