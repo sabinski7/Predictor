@@ -209,6 +209,21 @@ def main():
         return
     run_notebook()
     send_telegram(build_message(added))
+    nums = numbers_only()
+    if nums:
+        send_telegram(nums)
+
+
+SEPARATOR = "\t"   # tab: lipit în Excel, fiecare număr ajunge în celula lui
+
+
+def numbers_only():
+    """Al doilea mesaj: doar propunerile pentru extragerea următoare, ușor de copiat în Excel."""
+    df = load_history()
+    nxt = f"{next_slot(df['dt'].iloc[-1]):%Y-%m-%d %H:%M}"
+    log = pd.read_csv(LOG, dtype=str)
+    row = log[log["slot"] == nxt]
+    return SEPARATOR.join(row["propuneri"].iloc[0].split()) if len(row) else ""
 
 
 def gh_note(level, msg):
