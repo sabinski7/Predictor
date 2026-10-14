@@ -214,6 +214,13 @@ def main():
             print(f"⚠️  Nu am putut citi site-ul ({e}); încerc din nou la următoarea verificare.")
             draws = []
 
+    try:                                   # combinația completă (10 numere + Numerone), pentru analize viitoare
+        import sursa
+        n_comb = sursa.save_combinations(ROOT / "combinatii.csv")
+        if n_comb:
+            print(f"🗂️  {n_comb} combinații complete noi salvate în combinatii.csv")
+    except Exception as e:
+        gh_note("warning", f"Combinațiile nu au fost salvate: {e}")
     gh_note("notice", f"Sursa: {len(draws)} rezultate citite" + (f", ultimul {max(draws)[0]} → {max(draws)[1]}" if draws else ""))
     # Turele noi se procesează pe rând, în ordine cronologică: pentru fiecare se adaugă rezultatul,
     # se rulează notebook-ul (propunerile pentru tura următoare) și se trimit mesajele.
