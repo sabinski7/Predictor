@@ -24,6 +24,11 @@ import nbformat
 import pandas as pd
 from nbclient import NotebookClient
 
+# Ora Italiei, ca în history.csv și pe site: și coloana creat_la din jurnal folosește aceeași oră.
+os.environ["TZ"] = "Europe/Rome"
+if hasattr(__import__("time"), "tzset"):
+    __import__("time").tzset()
+
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "history.csv"
 LOG = ROOT / "predictions_log.csv"
