@@ -80,3 +80,15 @@ Dacă sursa nu merge, poți introduce numărul din aplicația GitHub sau din bro
 - GitHub poate întârzia rulările programate cu câteva minute, uneori mai mult în orele aglomerate.
 - Repo-ul e public: istoricul și jurnalul se văd public. Tokenul Telegram rămâne secret.
 - `history.csv` și `predictions_log.csv` din repo devin sursa principală. Pentru Deepnote, descarcă-le de aici.
+
+## Vânătorul de reguli (automat/vanator.py)
+
+Rulează zilnic, după extragerea de la 23:00, și caută reguli care ar prezice Numerone mai bine decât șansa. O regulă e acceptată doar dacă trece trei etape, fiecare pe date nevăzute de etapa anterioară:
+
+1. **Căutare**: ~14.000 de reguli pe istoric, fără ultimele 10.000 de ture. Familii de reguli: numărul de acum L ture × a + c, combinații de două ture anterioare, „la ora H joacă N”, aceeași oră de acum D zile, locul în frecvență sau întârziere, seturi de 9 numere calde, reci sau întârziate. Se rețin cele mai bune 50.
+2. **Validare**: acele 50, pe ultimele 10.000 de ture. Trec doar cele cu p < 0,0002 (corectat pentru 50 de încercări).
+3. **Probă**: regula e înghețată și urmărită pe extrageri reale noi. E confirmată la p < 0,001, după cel puțin 100 de ture în care se aplică. E respinsă dacă nu e peste șansă sau dacă trec ~200 de zile fără confirmare.
+
+Pe Telegram primești: „🔬 candidat în probă” (neconfirmat), „🚨 regulă confirmată” sau „❌ respins”, plus un raport scurt duminica. Regulile confirmate apar și în mesajul de la fiecare extragere, cu numărul pe care îl prezic. Starea e salvată în `automat/vanator_stare.json`, raportul în `automat/vanator_raport.md`.
+
+Verificare: pe istoricul real nu trece nicio regulă. Pe istorice cu defecte plantate („la ora 15 iese 7 de două ori mai des”, „numărul anterior se repetă în 7% din ture”) defectele sunt găsite din prima zi și confirmate după ~110–120 de zile, iar candidații falși sunt respinși în probă.

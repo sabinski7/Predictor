@@ -134,6 +134,13 @@ def build_message(added=()):
         exp = sum(int(v) / K for v in done["k"])
         lines.append(f"Jurnal: {sum(hits)}/{len(hits)} nimerite ({100 * sum(hits) / len(hits):.1f}%), "
                      f"șansa pură ≈ {100 * exp / len(hits):.0f}%")
+    try:
+        import vanator
+        extra = vanator.confirmed_predictions()
+        if extra:
+            lines.append("\n" + extra)
+    except Exception as e:
+        gh_note("warning", f"Vânătorul de reguli: {e}")
     return "\n".join(lines)
 
 
@@ -226,6 +233,17 @@ def main():
             return
         run_notebook()
         send_both([])
+    run_hunter()
+
+
+def run_hunter():
+    """Vânătorul de reguli: o dată pe zi (după extragerea de la 23:00) caută, validează și urmărește reguli."""
+    try:
+        import vanator
+        for m in vanator.run():
+            send_telegram(m)
+    except Exception as e:                 # o eroare aici nu trebuie să oprească restul
+        gh_note("warning", f"Vânătorul de reguli a dat eroare: {type(e).__name__}: {e}")
 
 
 def send_both(added):
