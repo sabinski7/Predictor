@@ -43,6 +43,7 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare9_reselectie.py` | re-alegerea celei mai bune dintre 48 de strategii după fiecare extragere (pe baza ultimelor 17–2.000 ture) | 44,8–45,4% cu 9 propuneri, față de 45% șansa pură; niciun câștig |
 | `explorare10_combinatii.py` | 26 de modele (inclusiv variante „reci” și ferestre), toate submulțimile celor 6 modele din notebook × 4 metode de combinare, toate perechile; 2.316 strategii evaluate după profit cu cotele reale | nicio strategie nu e pe profit în test; cea mai bună pe trecut pierde 6–8% în test |
 | `explorare11_detector_retro.py` | detectorul de schimbare (9c) rulat retroactiv săptămânal (248 verificări) și zilnic (1.732), comparat cu istorii simulate | zilnic: 22 🟡, 0 🚨 (1,3% din zile, față de 3,4% pe serii aleatoare); după cele două perioade în care ansamblul „bătea șansa” (mai 2024, apr. 2026) rata a revenit imediat la ~45% |
+| `explorare12_reguli_propuneri.py` | 1.700 de reguli între propuneri și numărul ieșit („= primul propus − 1”, „= p3 + p7 − 3”, suma, min, max…), găsite în jurnal și verificate pe 31.340 de ture | cea mai bună din jurnal (9,6%) dă 5,1% pe istoric; nicio regulă nu bate 5% |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
 
