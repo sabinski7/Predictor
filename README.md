@@ -46,6 +46,8 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare12_reguli_propuneri.py` | 1.700 de reguli între propuneri și numărul ieșit („= primul propus − 1”, „= p3 + p7 − 3”, suma, min, max…), găsite în jurnal și verificate pe 31.340 de ture | cea mai bună din jurnal (9,6%) dă 5,1% pe istoric; nicio regulă nu bate 5% |
 | `explorare13_valuri.py` | strategia „în valuri”: la fiecare tură se alege, dintre 1.700 de reguli, cea mai bună pe ultimele 5–3.000 de ture | 4,7–5,3% față de 5%; vârful de la fereastra de 3 zile (5,28%) nu rezistă (4,84% pe a doua jumătate a istoricului) |
 | `explorare14_urmatoarea_regula.py` | (A) regula care, istoric, a urmat după regula cea mai bună recentă; (B) regula cea mai slabă recent | A: 4,6–5,3%, B: 4,7–5,2%, față de 5%; nicio variantă nu bate șansa constant |
+| `explorare15_doar_istoric.py` | Markov de ordin 1–6 (stil PPM), modele cu regimuri ascunse (HMM cu 2–4 stări), 340 de combinații oră × lag, baterie tip NIST (entropie aproximativă, triplete, sume cumulative, cele mai lungi pauze) | top-9 între 44,5% și 45,5% pe ultimele 10.000 de ture, față de 45%; niciun test de aleatorism nu pică după corecția pentru teste multiple |
+| `explorare16_retea_secventiala.py` | rețea neuronală secvențială (GRU): ultimele 68 de numere + ora, cu oprire timpurie | log-loss mai slab decât uniform, top-9 44,3% față de 45% |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
 
