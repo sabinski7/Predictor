@@ -258,6 +258,14 @@ def send_both(added):
     nums = numbers_only()
     if nums:
         send_telegram(nums)
+    try:
+        import pauze
+        top = pauze.message()
+    except Exception as e:  # top-ul de reguli e un extra: nu oprește trimiterea propunerilor
+        gh_note("warning", f"Top-ul de reguli nu a putut fi calculat: {e}")
+        top = ""
+    if top:
+        send_telegram(top)
 
 
 SEPARATOR = "\t·\t"   # tab + punct vizibil: în Excel numerele ajung în celule separate, punctele în celulele dintre ele
