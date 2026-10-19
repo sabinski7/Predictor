@@ -1,11 +1,11 @@
 {
- "ultima_zi": "2026-10-18",
+ "ultima_zi": "2026-10-19",
  "candidati": [],
- "rulari": 6,
+ "rulari": 7,
  "ultima_cautare": {
   "reguli": 14380,
-  "ture_cautare": 21622,
+  "ture_cautare": 21639,
   "ture_validare": 10000,
-  "cel_mai_bun_validare": 0.061224489795918366
+  "cel_mai_bun_validare": 0.0544
  }
 }
