@@ -49,6 +49,7 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare15_doar_istoric.py` | Markov de ordin 1–6 (stil PPM), modele cu regimuri ascunse (HMM cu 2–4 stări), 340 de combinații oră × lag, baterie tip NIST (entropie aproximativă, triplete, sume cumulative, cele mai lungi pauze) | top-9 între 44,5% și 45,5% pe ultimele 10.000 de ture, față de 45%; niciun test de aleatorism nu pică după corecția pentru teste multiple |
 | `explorare16_retea_secventiala.py` | rețea neuronală secvențială (GRU): ultimele 68 de numere + ora, cu oprire timpurie | log-loss mai slab decât uniform, top-9 44,3% față de 45% |
 | `explorare17_top_reguli_propuneri.py` | 10.040 de reguli de tipul „p1 + p8 + 9” (pi + c, 2·pi, pi ± pj, trei propuneri, suma/min/max), căutate pe jumătate din istoric și verificate pe cealaltă jumătate și pe jurnal | top 10 la căutare: 5,57% → 5,07% la verificare; cea mai bună pe tot istoricul (5,48%) e exact cât dă hazardul când numerele sunt amestecate (5,48%) |
+| `explorare18_pauze_scurte.py` | top 10 reguli din propuneri (57.360: combinații ± de 1–4 propuneri, ±2·pi, + constantă) cu cea mai scurtă pauză maximă între nimeriri în jurnal, plus ce prezic pentru tura următoare | descrie jurnalul de până acum; pe numere amestecate cea mai bună regulă are tot ~27 de ture pauză maximă |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
 
