@@ -101,5 +101,56 @@ def message(root=ROOT):
     return "\n".join(lines)
 
 
+
+CSV = ROOT / "top_reguli.csv"
+START = 50          # primele 50 de ture din jurnal: top-ul nu are încă sens
+COLS = ["slot", "loc", "regula", "prezis", "pauza_max", "pauza_acum", "nimeriri", "ture_jurnal", "iesit", "nimerit"]
+
+
+def update_csv(root=ROOT, path=CSV):
+    """Scrie în CSV top-ul de la fiecare tură, așa cum era ÎNAINTE de extragere (doar cu turele anterioare),
+    cu numărul prezis de fiecare regulă; completează rezultatul când apare. Turele lipsă (inclusiv
+    cele din trecut) sunt adăugate dintr-o singură trecere prin jurnal. Întoarce câte ture noi au fost scrise."""
+    lg, nxt = load(root)
+    old = pd.read_csv(path, dtype=str) if Path(path).exists() else pd.DataFrame(columns=COLS)
+    done = set(old.slot)
+    P = np.array([[int(v) for v in p.split()] for p in lg.propuneri])
+    y = lg.rez.to_numpy(int)
+    slots = lg.slot.tolist()
+    H = (((y[:, None] - P @ C.T) % 20)[:, :, None] == np.arange(20)).reshape(len(y), -1) if len(y) else None
+    run = np.zeros(len(C) * 20, int); mx = run.copy(); hits = run.copy()
+    rows = []
+
+    def emit(t, slot, props, res):
+        eff = np.maximum(mx, run)
+        for i, f in enumerate(np.lexsort((-hits, eff))[:TOP], 1):
+            p = predict(f, props)
+            rows.append([slot, i, name(f), p, eff[f], run[f], hits[f], t,
+                         "" if res is None else res, "" if res is None else ("da" if p == res else "nu")])
+
+    for t in range(len(y)):
+        if t >= START and slots[t] not in done:
+            emit(t, slots[t], P[t], int(y[t]))
+        mx = np.maximum(mx, np.where(H[t], run, 0))
+        run = np.where(H[t], 0, run + 1)
+        hits += H[t]
+    if nxt is not None and len(y) >= START and nxt[0] not in done:
+        emit(len(y), nxt[0], nxt[1], None)
+
+    # rezultate pentru turele care așteptau extragerea
+    res = dict(zip(lg.slot, lg.rez.astype(int)))
+    pend = (old.iesit.fillna("") == "") & old.slot.isin(res)
+    if pend.any():
+        old.loc[pend, "iesit"] = old.loc[pend, "slot"].map(res).astype(str)
+        old.loc[pend, "nimerit"] = np.where(old.loc[pend, "prezis"].astype(int) == old.loc[pend, "slot"].map(res), "da", "nu")
+    if not rows and not pend.any():
+        return 0
+    out = pd.concat([old, pd.DataFrame(rows, columns=COLS).astype(str)], ignore_index=True)
+    out = out.sort_values(["slot", "loc"], key=lambda s: s.astype(int) if s.name == "loc" else s, kind="stable")
+    out.to_csv(path, index=False)
+    return len({r[0] for r in rows})
+
+
 if __name__ == "__main__":
     print(message())
+    print(f"top_reguli.csv: {update_csv()} ture noi")
