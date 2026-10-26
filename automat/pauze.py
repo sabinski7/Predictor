@@ -151,6 +151,62 @@ def update_csv(root=ROOT, path=CSV):
     return len({r[0] for r in rows})
 
 
+# ---------- strategia cu 11 numere ----------
+S11 = ROOT / "strategie_11.csv"
+K11 = 11
+
+
+def numere_11(rule_preds, props, hist_numbers):
+    """numerele celor 10 reguli (în ordinea din top, fără dubluri), apoi propunerile notebook-ului,
+    apoi, dacă tot nu sunt 11, cele mai frecvente numere din ultimele 100 de extrageri."""
+    nums = list(dict.fromkeys(list(rule_preds) + list(props)))[:K11]
+    if len(nums) < K11:
+        freq = np.bincount(np.asarray(hist_numbers[-100:], int), minlength=21)[1:]
+        nums += [int(v) for v in np.argsort(-freq, kind="stable") + 1 if v not in nums][:K11 - len(nums)]
+    return [int(v) for v in nums]
+
+
+def update_s11(root=ROOT, path=S11):
+    """Reface strategie_11.csv din top_reguli.csv și jurnal: cele 11 numere pentru fiecare tură,
+    numărul ieșit, nimerit da/nu și pauza (ture la rând fără nimerire). Întoarce ultimul rând."""
+    top_ = pd.read_csv(root / "top_reguli.csv", dtype=str)
+    lg = pd.read_csv(root / "predictions_log.csv", dtype=str)
+    lg = lg[lg.k == "9"].drop_duplicates("slot", keep="last").set_index("slot")
+    h = pd.read_csv(root / "history.csv", dtype=str)
+    hslots = (h.Date + " " + h.Time).tolist(); hnums = h["Drawn Number"].astype(int).to_numpy()
+    pos = {s: i for i, s in enumerate(hslots)}
+    rows, run = [], 0
+    for slot, g in top_.groupby("slot", sort=True):
+        g = g.sort_values("loc", key=lambda c: c.astype(int))
+        props = [int(v) for v in lg.loc[slot, "propuneri"].split()] if slot in lg.index else []
+        before = hnums[:pos[slot]] if slot in pos else hnums
+        nums = numere_11(g.prezis.astype(int), props, before)
+        res = g.iesit.iloc[0]
+        if isinstance(res, str) and res:
+            hit = int(res) in nums
+            run = 0 if hit else run + 1
+            rows.append([slot, " ".join(map(str, nums)), res, "da" if hit else "nu", run])
+        else:
+            rows.append([slot, " ".join(map(str, nums)), "", "", run])
+    out = pd.DataFrame(rows, columns=["slot", "numere", "iesit", "nimerit", "pauza"])
+    out.to_csv(path, index=False)
+    return out
+
+
+def message_11(root=ROOT):
+    s = update_s11(root)
+    done = s[s.iesit != ""]
+    if not len(s) or s.iesit.iloc[-1] != "":
+        return ""
+    last = s.iloc[-1]
+    pz = done.pauza.astype(int)
+    rate = (done.nimerit == "da").mean()
+    return (f"🎯 Strategia 11 numere → {last.slot}\n{last.numere.replace(' ', ', ')}\n"
+            f"Pauza acum: {int(last.pauza)} ture fără nimerire · cea mai lungă: {pz.max()} · "
+            f"nimerire {100*rate:.1f}% din {len(done)} ture (hazard 55%)")
+
+
 if __name__ == "__main__":
     print(message())
     print(f"top_reguli.csv: {update_csv()} ture noi")
+    print(message_11())
