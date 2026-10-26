@@ -50,6 +50,7 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare16_retea_secventiala.py` | rețea neuronală secvențială (GRU): ultimele 68 de numere + ora, cu oprire timpurie | log-loss mai slab decât uniform, top-9 44,3% față de 45% |
 | `explorare17_top_reguli_propuneri.py` | 10.040 de reguli de tipul „p1 + p8 + 9” (pi + c, 2·pi, pi ± pj, trei propuneri, suma/min/max), căutate pe jumătate din istoric și verificate pe cealaltă jumătate și pe jurnal | top 10 la căutare: 5,57% → 5,07% la verificare; cea mai bună pe tot istoricul (5,48%) e exact cât dă hazardul când numerele sunt amestecate (5,48%) |
 | `explorare18_pauze_scurte.py` | top 10 reguli din propuneri (57.360: combinații ± de 1–4 propuneri, ±2·pi, + constantă) cu cea mai scurtă pauză maximă între nimeriri în jurnal, plus ce prezic pentru tura următoare | descrie jurnalul de până acum; pe numere amestecate cea mai bună regulă are tot ~27 de ture pauză maximă |
+| `explorare19_dezvoltare_reguli.py` | 8 variante ale strategiei cu top 10 reguli (top 5/20, numere cu 2+ voturi, după nimeriri, „fierbinți”, „restante”, cele care au nimerit recent), pe jurnal și pe 31.544 de ture din istoric | eficiență 0,98–1,01 pe istoric (1,00 = hazard); cea mai bună pe jurnal (H, 1,095) e cea mai slabă pe istoric (0,981) |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
 
