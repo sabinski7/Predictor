@@ -227,7 +227,32 @@ def update_daily(root=ROOT, src=CSV, path=ZILNIC):
     return z
 
 
+LOC1 = ROOT / "cea_mai_buna_regula.csv"
+
+
+def update_best(src=CSV, path=LOC1):
+    """Doar locul 1 din top (regula cu cea mai scurtă pauză maximă la acel moment), tură cu tură,
+    cu rezultatul și cu pauza curentă a acestei strategii (ture la rând fără nimerire)."""
+    t = pd.read_csv(src, dtype=str)
+    b = t[t["loc"] == "1"].sort_values("slot").copy()
+    run, total, rows = 0, 0, []
+    for _, r in b.iterrows():
+        done = isinstance(r.iesit, str) and r.iesit != ""
+        if done:
+            hit = r.nimerit == "da"
+            run = 0 if hit else run + 1
+            total += hit
+        rows.append([r.slot, r.regula, r.prezis, r.pauza_max, r.pauza_acum, r.nimeriri,
+                     r.iesit if done else "", r.nimerit if done else "", run, total])
+    out = pd.DataFrame(rows, columns=["slot", "regula", "prezis", "pauza_max_regula", "pauza_acum_regula",
+                                      "nimeriri_regula", "iesit", "nimerit", "ture_fara_nimerire_strategie",
+                                      "nimeriri_strategie_total"])
+    out.to_csv(path, index=False)
+    return out
+
+
 if __name__ == "__main__":
     print(message())
     print(f"top_reguli.csv: {update_csv()} ture noi")
     print(update_daily().tail())
+    print(update_best().tail())
