@@ -52,6 +52,7 @@ Scripturile din `cercetare/` (se rulează din rădăcina repo-ului, cu `scikit-l
 | `explorare18_pauze_scurte.py` | top 10 reguli din propuneri (57.360: combinații ± de 1–4 propuneri, ±2·pi, + constantă) cu cea mai scurtă pauză maximă între nimeriri în jurnal, plus ce prezic pentru tura următoare | descrie jurnalul de până acum; pe numere amestecate cea mai bună regulă are tot ~27 de ture pauză maximă |
 | `explorare19_dezvoltare_reguli.py` | 8 variante ale strategiei cu top 10 reguli (top 5/20, numere cu 2+ voturi, după nimeriri, „fierbinți”, „restante”, cele care au nimerit recent), pe jurnal și pe 31.544 de ture din istoric | eficiență 0,98–1,01 pe istoric (1,00 = hazard); cea mai bună pe jurnal (H, 1,095) e cea mai slabă pe istoric (0,981) |
 | `explorare20_strategie_11.py` | 6 feluri de a alege 11 numere (reguli + propuneri, ansamblu, reci, calde, fixe, la întâmplare) comparate după pauzele dintre nimeriri, pe 28.350 de ture | toate ~55% și aceleași pauze (max 12–14, ~58 pauze de 7+), exact ca teoria: pauzele depind doar de câte numere joci |
+| `explorare21_cautare_11.py` | 70 de metode de a alege 11 numere (modele, calde/reci pe 12 ferestre, recență, aceeași oră, excluderi, Markov, deplasări, reguli, voturi), clasate pe prima jumătate a istoricului și verificate pe a doua | primele 10 la căutare: 56,8% → 55,0% la verificare; pe a doua jumătate toate între 54,2% și 55,7%, o împrăștiere mai mică decât cea dată de hazard; 11 numere la întâmplare sunt printre primele |
 
 Concluzie: generatorul se comportă aleator, iar acuratețea rămâne la nivelul șansei pure (top-7 ~35%, top-9 ~45%).
 
@@ -65,7 +66,7 @@ Workflow-ul `.github/workflows/predictor.yml` rulează la fiecare 10 minute, pen
 4. îți trimite pe Telegram propunerile pentru extragerea următoare și rezultatul ultimei extrageri;
    apoi un al treilea mesaj (`automat/pauze.py`): top 10 reguli din propuneri cu cele mai scurte pauze între nimeriri în jurnal, recalculat după fiecare tură, cu numărul prezis de fiecare regulă, ce reguli din top-ul anterior au nimerit și ce reguli au intrat sau au ieșit din top;
    top-ul fiecărei ture se salvează și în `top_reguli.csv` (tura, locul, regula, numărul prezis, pauza maximă, pauza curentă, nimeriri, câte ture avea jurnalul, numărul ieșit, nimerit da/nu), inclusiv pentru turele din trecut, de la a 50-a tură din jurnal;
-   un al patrulea mesaj, „🎯 Strategia 11 numere”: numerele celor 10 reguli + propunerile notebook-ului (completate, dacă e nevoie, cu cele mai frecvente numere din ultimele 100 de extrageri) până la 11, cu pauza curentă și cea mai lungă; istoricul ei e în `strategie_11.csv`;
+   un al patrulea mesaj (momentan oprit; se pornește cu variabila `TRIMITE_11=1`), „🎯 Strategia 11 numere”: numerele celor 10 reguli + propunerile notebook-ului (completate, dacă e nevoie, cu cele mai frecvente numere din ultimele 100 de extrageri) până la 11, cu pauza curentă și cea mai lungă; istoricul ei e în `strategie_11.csv`;
 5. salvează `history.csv` și `predictions_log.csv` în repo.
 
 Dacă nu a apărut o extragere nouă, nu face nimic și nu trimite niciun mesaj.
