@@ -268,7 +268,7 @@ def send_both(added):
         top = s11 = ""
     if top:
         send_telegram(top)
-    if s11:
+    if s11 and os.environ.get("TRIMITE_11") == "1":   # al 4-lea mesaj: oprit până hotărăște utilizatorul
         send_telegram(s11)
 
 
