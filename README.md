@@ -69,6 +69,7 @@ Workflow-ul `.github/workflows/predictor.yml` rulează la fiecare 10 minute, pen
 4. îți trimite pe Telegram propunerile pentru extragerea următoare și rezultatul ultimei extrageri;
    apoi un al treilea mesaj (`automat/pauze.py`): top 10 reguli din propuneri cu cele mai scurte pauze între nimeriri în jurnal, recalculat după fiecare tură, cu numărul prezis de fiecare regulă, ce reguli din top-ul anterior au nimerit și ce reguli au intrat sau au ieșit din top;
    top-ul fiecărei ture se salvează și în `top_reguli.csv` (tura, locul, regula, numărul prezis, pauza maximă, pauza curentă, nimeriri, câte ture avea jurnalul, numărul ieșit, nimerit da/nu), inclusiv pentru turele din trecut, de la a 50-a tură din jurnal;
+   rezumatul pe zile e în `top_reguli_zilnic.csv` (data, ture, ture cu măcar o nimerire, nimeriri totale ale regulilor, procent);
 5. salvează `history.csv` și `predictions_log.csv` în repo.
 
 Dacă nu a apărut o extragere nouă, nu face nimic și nu trimite niciun mesaj.

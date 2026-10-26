@@ -206,7 +206,28 @@ def message_11(root=ROOT):
             f"nimerire {100*rate:.1f}% din {len(done)} ture (hazard 55%)")
 
 
+ZILNIC = ROOT / "top_reguli_zilnic.csv"
+
+
+def update_daily(root=ROOT, src=CSV, path=ZILNIC):
+    """Rezumat pe zile al strategiei „top 10 reguli”: câte ture au fost jucate, în câte a nimerit
+    măcar o regulă, câte nimeriri au fost în total (o tură poate avea mai multe) și procentul."""
+    t = pd.read_csv(src, dtype=str)
+    t = t[t.iesit.fillna("") != ""]
+    if not len(t):
+        return None
+    t["data"] = t.slot.str[:10]
+    per_tura = t.groupby(["data", "slot"]).nimerit.apply(lambda s: (s == "da").sum()).reset_index(name="n")
+    z = per_tura.groupby("data").agg(ture=("slot", "count"),
+                                     ture_cu_nimerire=("n", lambda v: int((v > 0).sum())),
+                                     nimeriri_reguli=("n", "sum")).reset_index()
+    z["procent_ture_cu_nimerire"] = (100 * z.ture_cu_nimerire / z.ture).round(1)
+    z["data"] = pd.to_datetime(z.data).dt.strftime("%d.%m.%Y")
+    z.to_csv(path, index=False)
+    return z
+
+
 if __name__ == "__main__":
     print(message())
     print(f"top_reguli.csv: {update_csv()} ture noi")
-    print(message_11())
+    print(update_daily().tail())

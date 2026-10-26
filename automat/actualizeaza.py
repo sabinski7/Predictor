@@ -262,6 +262,7 @@ def send_both(added):
         import pauze
         top = pauze.message()
         pauze.update_csv()
+        pauze.update_daily()
     except Exception as e:  # top-ul de reguli e un extra: nu oprește trimiterea propunerilor
         gh_note("warning", f"Top-ul de reguli nu a putut fi calculat: {e}")
         top = ""
