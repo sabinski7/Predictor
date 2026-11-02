@@ -269,6 +269,11 @@ def send_both(added):
         top = ""
     if top:
         send_telegram(top)
+    try:  # test pe date noi, doar în CSV (fără mesaj pe Telegram)
+        import istoric_reguli
+        istoric_reguli.update()
+    except Exception as e:
+        gh_note("warning", f"Regulile din istoric nu au putut fi calculate: {e}")
 
 
 SEPARATOR = "\t·\t"   # tab + punct vizibil: în Excel numerele ajung în celule separate, punctele în celulele dintre ele

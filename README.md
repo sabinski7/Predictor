@@ -75,6 +75,7 @@ Workflow-ul `.github/workflows/predictor.yml` rulează la fiecare 10 minute, pen
    top-ul fiecărei ture se salvează și în `top_reguli.csv` (tura, locul, regula, numărul prezis, pauza maximă, pauza curentă, nimeriri, câte ture avea jurnalul, numărul ieșit, nimerit da/nu), inclusiv pentru turele din trecut, de la a 50-a tură din jurnal;
    rezumatul pe zile e în `top_reguli_zilnic.csv` (data, ture, ture cu măcar o nimerire, nimeriri totale ale regulilor, procent);
    doar regula de pe locul 1, tură cu tură, cu rezultatul și pauza strategiei, e în `cea_mai_buna_regula.csv`;
+   test pe date noi, doar în CSV (`automat/istoric_reguli.py`): reguli doar pe istoric (n1…n17, n34, n51; 1,4 milioane), clasate după fiecare tură pe ultimele 600 de extrageri. `istoric_top.csv` are locurile 1–20, cu numărul prezis, dacă regula e nouă în top 10 și de pe ce loc a venit; `strategie_istoric.csv` urmărește strategiile A (locurile 1–10, completate la 11 numere), B (cele 9 propuneri completate la 11, comparație) și C (locurile 11–20). Rândurile cu `test_live = nu` sunt calculate retroactiv, pentru exemplu;
 5. salvează `history.csv` și `predictions_log.csv` în repo.
 
 Dacă nu a apărut o extragere nouă, nu face nimic și nu trimite niciun mesaj.
